@@ -8,52 +8,55 @@
  * Return: Alway return 0
  **/
 
-int main(void)
+void display_prompt()
 {
-	char command[100];
-	pid_t child_pid;
-	int status;
+	write(STDOUT_FILENO, "Alx_simple-shell$ ", 18);
+}
 
-	while (1)
+void read_command(char *command)
+{
+	ssize_t read_size = read(STDIN_FILENO, command, MAX_COMMAND_LENGTH);
+
+	if (read_size <= 0)
 	{
-		printf("Alx_simple-shell$ ");
-
-
-		if (fgets(command, sizeof(command), stdin) == NULL)
-		{
-			printf("\n");
-			break;
-		}
-
-		size_t len = strlen(command);
-
-		if (len > 0 && command[len - 1] == '\n')
-		{
-			command[len - 1] = '\0';
-		}
-
-
-		child_pid = fork();
-		if (child_pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		else if (child_pid == 0)
-		{
-			if (execve(command, (char *const []){command, NULL}, (char *const []){NULL}))
-			{
-				perror("execve");
-				exit(EXIT_FAILURE);
-			}
-		}
-		else
-		{
-			waitpid(child_pid, &status, 0);
-		}
+		write(STDOUT_FILENO, "\n", 1);
+		_exit(0);
 	}
 
+	command[read_size - 1] = '\0';
+}
 
+void execute_command(char *command)
+{
+	pid_t pid = fork();
 
-	return (0);
+	if (pid == 0)
+	{
+		char *args[] = {command, command, NULL};
+		execve(args[0], args, NULL);
+		perror("execve");
+		_exit(1);
+	}
+	else if (pid < 0)
+	{
+		perror("fork");
+	}
+	else
+	{
+        	wait(NULL);
+	}
+}
+
+int main()
+{
+	while (1)
+	{
+		display_prompt();
+		char command[MAX_COMMAND_LENGTH];
+		read_command(command);
+
+		execute_command(command);
+	}
+
+	return 0;
 }
