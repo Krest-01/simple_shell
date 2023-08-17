@@ -11,5 +11,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #define MAX_COMMAND_LENGTH 100
+#define MAX_ARGS 10
+
 
 #endif

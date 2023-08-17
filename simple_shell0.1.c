@@ -35,7 +35,7 @@ void execute_command(char *command)
 		char *args[] = {command, command, NULL};
 		execve(args[0], args, NULL);
 		perror("execve");
-		_exit(1);
+		_exit(EXIT_FAILURE);
 	}
 	else if (pid < 0)
 	{
